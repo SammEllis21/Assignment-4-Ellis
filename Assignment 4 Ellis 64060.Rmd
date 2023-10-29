@@ -1,0 +1,67 @@
+---
+title: "Assignment 4 Ellis ML 64060"
+author: "Samantha Ellis"
+date: "2023-10-26"
+output: html_document
+---
+Question A.
+```{r}
+##Looking only at nummeric variables
+NumericPharm<- Pharmaceuticals %>% select(3:11)
+##Scaling the dataset
+ScaledNumericPharm<- scale(NumericPharm)
+##Determining the number of clusters needed
+ClustScalNumPharm<- (nrow(ScaledNumericPharm)-1)*sum(apply(ScaledNumericPharm,2,var))
+ClustScalNumPharm
+for (i in 2:15)ClustScalNumPharm[i]<- sum(kmeans(ScaledNumericPharm, centers = i)$withinss)
+ClustScalNumPharm
+plot(1:15, ClustScalNumPharm, type = "b", xlab = "Number of Clusters", ylab = "Within groups sum of squares")
+##The visual shows a drop around 5, so that would be appropriate amount of clusters for this dataset
+```
+I initially attempted using functions using the flexclust package and the factoextra package, but those are no longer available within RStudio, so I had to find alternative functions and methods.
+I used the Elbow Method to determine number of clusters.
+
+
+
+
+Question B.
+```{r}
+##The mean of each cluster by variable
+KMEANClustPharm<- kmeans(ScaledNumericPharm, 5)
+aggregate(ScaledNumericPharm, by=list(KMEANClustPharm$cluster),FUN=mean)
+```
+Cluster 1 is the lowest for Market capitalization, highest for Beta, lowest for Price/earnings ratio, lowest for asset turnover, and highest for leverage.
+Cluster 2 has the highest return of equity and highest return of assets, but the lowest leverage. 
+Cluster 3 has the highest Market capitalization, asset turnover, estimated revenue growth, and net profit margin. 
+Cluster 4 the highest price/earnings ratio, but the lowest return of assets, return of equity, and net profit margin. 
+Cluster 5 has the lowest Beta and lowest estimated revenue growth. 
+
+This follows the silhouette method. Again, since some packages from the lecture are outdated, I found other functions to display the clusters with similar results.
+
+
+
+
+Question C. 
+```{r}
+clusplot(ScaledNumericPharm, KMEANClustPharm$cluster, color = TRUE, shade = TRUE, labels = 2, lines = 0)
+```
+Cluster 3 is the highest in four of the nine variables, and is not the lowest for any of the other variables. Cluster 5 is the lowest for two of the variables and is not the highest for any of them. 
+Visually, clusters 2, 4, and 5, have similar shapes and spreads (ovals that skew right and downwards), while Clusters 1 and 3 have unique spreads. 
+Visually, Cluster 3, is the farthest outlier, and only contains two of the 21 pharmaceutical companies. 
+
+
+
+
+
+
+
+
+
+
+Question D.
+Cluster 1 should be labelled as Highest Beta, Leverage, and Lowest Market Cap, PER, AT.
+Cluster 2 should be labelled as Highest ROE, ROA, and Lowest leverage.
+Cluster 3 should be labelled as Highest Market Cap, AT, ERG, NPM.
+Cluster 4 should be labelled as Highest PER, and Lowest ROE, ROA, NPM.
+Cluster 5 should be labelled as Lowest Beta, ERG.
+
